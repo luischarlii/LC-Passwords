@@ -1,41 +1,61 @@
-<!doctype html>
 <html lang="es">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#111111">
+  <meta name="theme-color" content="#0d1b2a">
   <meta name="description" content="Genera contraseñas aleatorias de 4 a 16 caracteres y cópialas con un toque.">
   <title>LC Passwords | Generador de contraseñas</title>
   <style>
-    :root { color-scheme: light dark; --bg:#f5f5f7; --card:#fff; --text:#171717; --muted:#686868; --line:#dedee3; --accent:#171717; --accentText:#fff; }
+    :root { 
+      color-scheme: light dark; 
+      --bg:#f0f4f8; 
+      --card:#ffffff; 
+      --text:#102a43; 
+      --muted:#627d98; 
+      --line:#bcccdc; 
+      --accent:#0077b6; /* Azul principal */
+      --accentText:#ffffff; 
+      --greenAccent:#2a9d8f; /* Verde secundario / acentos */
+    }
     @media (prefers-color-scheme: dark) {
-      :root { --bg:#111; --card:#1b1b1f; --text:#f5f5f7; --muted:#aaaab2; --line:#36363c; --accent:#f5f5f7; --accentText:#111; }
+      :root { 
+        --bg:#0b1329; 
+        --card:#111e38; 
+        --text:#e2e8f0; 
+        --muted:#8899a6; 
+        --line:#203354; 
+        --accent:#00b4d8; /* Azul brillante para modo oscuro */
+        --accentText:#0b1329; 
+        --greenAccent:#2ec4b6; /* Verde brillante para modo oscuro */
+      }
     }
     * { box-sizing:border-box; }
     body { margin:0; min-height:100vh; background:var(--bg); color:var(--text); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; display:flex; justify-content:center; padding:24px 16px calc(24px + env(safe-area-inset-bottom)); }
     main { width:100%; max-width:460px; margin:auto; }
     header { display:flex; align-items:center; gap:13px; margin-bottom:24px; }
-    .logo { width:54px; height:54px; border-radius:16px; background:var(--accent); color:var(--accentText); display:grid; place-items:center; font-size:19px; font-weight:850; letter-spacing:-1px; }
+    .logo { width:54px; height:54px; border-radius:16px; background:linear-gradient(135deg, var(--accent), var(--greenAccent)); color:var(--accentText); display:grid; place-items:center; font-size:19px; font-weight:850; letter-spacing:-1px; }
     h1 { font-size:25px; margin:0 0 4px; letter-spacing:-.7px; }
     .subtitle { color:var(--muted); font-size:14px; }
-    .card { background:var(--card); border:1px solid var(--line); border-radius:24px; padding:22px; box-shadow:0 8px 28px #00000008; }
-    .eyebrow { color:var(--muted); font-size:12px; font-weight:750; letter-spacing:1px; margin-bottom:10px; }
+    .card { background:var(--card); border:1px solid var(--line); border-radius:24px; padding:22px; box-shadow:0 8px 28px rgba(0,0,0,0.06); }
+    .eyebrow { color:var(--greenAccent); font-size:12px; font-weight:750; letter-spacing:1px; margin-bottom:10px; }
     .password-wrap { display:flex; align-items:center; gap:8px; background:var(--bg); border:1px solid var(--line); border-radius:14px; padding:14px 12px; min-height:62px; }
-    #password { flex:1; min-width:0; overflow-wrap:anywhere; font-size:19px; font-weight:750; letter-spacing:.3px; line-height:1.4; }
-    .icon-button { flex-shrink:0; border:0; border-radius:10px; background:transparent; color:var(--text); padding:9px; font-size:19px; cursor:pointer; }
+    #password { flex:1; min-width:0; overflow-wrap:anywhere; font-size:19px; font-weight:750; letter-spacing:.3px; line-height:1.4; color:var(--accent); }
+    .icon-button { flex-shrink:0; border:0; border-radius:10px; background:transparent; color:var(--greenAccent); padding:9px; font-size:19px; cursor:pointer; transition: transform 0.2s; }
+    .icon-button:hover { transform: scale(1.1); }
     .length-row { display:flex; justify-content:space-between; align-items:center; margin:24px 0 10px; font-weight:700; }
-    #lengthValue { font-size:19px; }
-    input[type=range] { width:100%; accent-color:var(--text); cursor:pointer; }
+    #lengthValue { font-size:19px; color:var(--greenAccent); }
+    input[type=range] { width:100%; accent-color:var(--greenAccent); cursor:pointer; }
     .range-labels { display:flex; justify-content:space-between; color:var(--muted); font-size:12px; margin-top:3px; }
     .section-title { font-weight:750; margin:24px 0 12px; }
     .options { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
-    .option { display:flex; align-items:center; gap:9px; border:1px solid var(--line); padding:12px 10px; border-radius:12px; font-size:14px; }
-    input[type=checkbox] { width:18px; height:18px; accent-color:var(--text); margin:0; }
+    .option { display:flex; align-items:center; gap:9px; border:1px solid var(--line); padding:12px 10px; border-radius:12px; font-size:14px; background:var(--card); }
+    input[type=checkbox] { width:18px; height:18px; accent-color:var(--greenAccent); margin:0; cursor:pointer; }
     button.primary, button.secondary { width:100%; min-height:49px; border-radius:14px; font-size:15px; font-weight:750; cursor:pointer; }
-    button.primary { margin-top:24px; border:0; background:var(--accent); color:var(--accentText); }
+    button.primary { margin-top:24px; border:0; background:linear-gradient(135deg, var(--accent), var(--greenAccent)); color:var(--accentText); box-shadow: 0 4px 12px rgba(0, 119, 182, 0.2); }
     button.secondary { margin-top:10px; border:1px solid var(--line); background:transparent; color:var(--text); }
+    button.secondary:hover { border-color: var(--greenAccent); color: var(--greenAccent); }
     button:active { transform:scale(.99); }
-    .status { min-height:20px; margin-top:10px; text-align:center; color:var(--muted); font-size:13px; }
+    .status { min-height:20px; margin-top:10px; text-align:center; color:var(--greenAccent); font-size:13px; font-weight: 500; }
     .hint { color:var(--muted); font-size:12px; line-height:1.5; margin-top:16px; }
     footer { text-align:center; color:var(--muted); font-size:12px; margin-top:22px; }
   </style>
@@ -89,7 +109,6 @@
     status.textContent = '';
   });
 
-  // Selección sin sesgo usando Web Crypto y rechazo de valores fuera de rango.
   function secureIndex(max) {
     const limit = Math.floor(256 / max) * max;
     const byte = new Uint8Array(1);
@@ -141,6 +160,7 @@
     }
   }
 
+  document.linspace = {}; // fix dummy placeholder if any
   document.getElementById('generateBtn').addEventListener('click', generatePassword);
   document.getElementById('refreshBtn').addEventListener('click', generatePassword);
   document.getElementById('copyBtn').addEventListener('click', copyPassword);
