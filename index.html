@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#111111">
+  <meta name="description" content="Genera contraseñas aleatorias de 4 a 16 caracteres y cópialas con un toque.">
+  <title>LC Passwords | Generador de contraseñas</title>
+  <style>
+    :root { color-scheme: light dark; --bg:#f5f5f7; --card:#fff; --text:#171717; --muted:#686868; --line:#dedee3; --accent:#171717; --accentText:#fff; }
+    @media (prefers-color-scheme: dark) {
+      :root { --bg:#111; --card:#1b1b1f; --text:#f5f5f7; --muted:#aaaab2; --line:#36363c; --accent:#f5f5f7; --accentText:#111; }
+    }
+    * { box-sizing:border-box; }
+    body { margin:0; min-height:100vh; background:var(--bg); color:var(--text); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; display:flex; justify-content:center; padding:24px 16px calc(24px + env(safe-area-inset-bottom)); }
+    main { width:100%; max-width:460px; margin:auto; }
+    header { display:flex; align-items:center; gap:13px; margin-bottom:24px; }
+    .logo { width:54px; height:54px; border-radius:16px; background:var(--accent); color:var(--accentText); display:grid; place-items:center; font-size:19px; font-weight:850; letter-spacing:-1px; }
+    h1 { font-size:25px; margin:0 0 4px; letter-spacing:-.7px; }
+    .subtitle { color:var(--muted); font-size:14px; }
+    .card { background:var(--card); border:1px solid var(--line); border-radius:24px; padding:22px; box-shadow:0 8px 28px #00000008; }
+    .eyebrow { color:var(--muted); font-size:12px; font-weight:750; letter-spacing:1px; margin-bottom:10px; }
+    .password-wrap { display:flex; align-items:center; gap:8px; background:var(--bg); border:1px solid var(--line); border-radius:14px; padding:14px 12px; min-height:62px; }
+    #password { flex:1; min-width:0; overflow-wrap:anywhere; font-size:19px; font-weight:750; letter-spacing:.3px; line-height:1.4; }
+    .icon-button { flex-shrink:0; border:0; border-radius:10px; background:transparent; color:var(--text); padding:9px; font-size:19px; cursor:pointer; }
+    .length-row { display:flex; justify-content:space-between; align-items:center; margin:24px 0 10px; font-weight:700; }
+    #lengthValue { font-size:19px; }
+    input[type=range] { width:100%; accent-color:var(--text); cursor:pointer; }
+    .range-labels { display:flex; justify-content:space-between; color:var(--muted); font-size:12px; margin-top:3px; }
+    .section-title { font-weight:750; margin:24px 0 12px; }
+    .options { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+    .option { display:flex; align-items:center; gap:9px; border:1px solid var(--line); padding:12px 10px; border-radius:12px; font-size:14px; }
+    input[type=checkbox] { width:18px; height:18px; accent-color:var(--text); margin:0; }
+    button.primary, button.secondary { width:100%; min-height:49px; border-radius:14px; font-size:15px; font-weight:750; cursor:pointer; }
+    button.primary { margin-top:24px; border:0; background:var(--accent); color:var(--accentText); }
+    button.secondary { margin-top:10px; border:1px solid var(--line); background:transparent; color:var(--text); }
+    button:active { transform:scale(.99); }
+    .status { min-height:20px; margin-top:10px; text-align:center; color:var(--muted); font-size:13px; }
+    .hint { color:var(--muted); font-size:12px; line-height:1.5; margin-top:16px; }
+    footer { text-align:center; color:var(--muted); font-size:12px; margin-top:22px; }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <div class="logo" aria-hidden="true">LC</div>
+    <div><h1>LC Passwords</h1><div class="subtitle">Generador de contraseñas seguras</div></div>
+  </header>
+  <section class="card" aria-label="Generador de contraseñas">
+    <div class="eyebrow">TU CONTRASEÑA</div>
+    <div class="password-wrap">
+      <div id="password" aria-live="polite">Pulsa generar</div>
+      <button class="icon-button" id="refreshBtn" aria-label="Generar otra contraseña" title="Generar otra">↻</button>
+    </div>
+    <div class="length-row"><label for="length">Longitud</label><span id="lengthValue">12 caracteres</span></div>
+    <input id="length" type="range" min="4" max="16" value="12" step="1">
+    <div class="range-labels"><span>4</span><span>8</span><span>12</span><span>16</span></div>
+
+    <div class="section-title">Tipos de caracteres</div>
+    <div class="options">
+      <label class="option"><input type="checkbox" id="uppercase" checked> Mayúsculas (A–Z)</label>
+      <label class="option"><input type="checkbox" id="lowercase" checked> Minúsculas (a–z)</label>
+      <label class="option"><input type="checkbox" id="numbers" checked> Números (0–9)</label>
+      <label class="option"><input type="checkbox" id="symbols" checked> Símbolos (!@#$)</label>
+    </div>
+    <button class="primary" id="generateBtn">Generar contraseña</button>
+    <button class="secondary" id="copyBtn">Copiar contraseña</button>
+    <div class="status" id="status" role="status" aria-live="polite"></div>
+    <p class="hint">Consejo: usa una contraseña diferente para cada cuenta. Esta aplicación genera la contraseña en tu dispositivo y no necesita una cuenta ni guardar tus contraseñas.</p>
+  </section>
+  <footer>LC Passwords · Luis Charlii</footer>
+</main>
+<script>
+(() => {
+  const lengthInput = document.getElementById('length');
+  const lengthValue = document.getElementById('lengthValue');
+  const passwordOutput = document.getElementById('password');
+  const status = document.getElementById('status');
+  const sets = [
+    ['uppercase', 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'],
+    ['lowercase', 'abcdefghijklmnopqrstuvwxyz'],
+    ['numbers', '0123456789'],
+    ['symbols', '!@#$%&*_-+=?']
+  ];
+  let currentPassword = '';
+
+  lengthInput.addEventListener('input', () => {
+    lengthValue.textContent = `${lengthInput.value} caracteres`;
+    status.textContent = '';
+  });
+
+  // Selección sin sesgo usando Web Crypto y rechazo de valores fuera de rango.
+  function secureIndex(max) {
+    const limit = Math.floor(256 / max) * max;
+    const byte = new Uint8Array(1);
+    do { crypto.getRandomValues(byte); } while (byte[0] >= limit);
+    return byte[0] % max;
+  }
+
+  function generatePassword() {
+    const selected = sets.filter(([id]) => document.getElementById(id).checked).map(([, chars]) => chars);
+    const length = Number(lengthInput.value);
+    if (!selected.length) {
+      status.textContent = 'Selecciona al menos un tipo de carácter.';
+      return;
+    }
+    if (length < selected.length) {
+      status.textContent = `Con esta longitud, selecciona como máximo ${length} tipos de caracteres.`;
+      return;
+    }
+    const allChars = selected.join('');
+    const result = selected.map(chars => chars[secureIndex(chars.length)]);
+    while (result.length < length) result.push(allChars[secureIndex(allChars.length)]);
+    for (let i = result.length - 1; i > 0; i--) {
+      const j = secureIndex(i + 1);
+      [result[i], result[j]] = [result[j], result[i]];
+    }
+    currentPassword = result.join('');
+    passwordOutput.textContent = currentPassword;
+    status.textContent = 'Contraseña generada en este dispositivo.';
+  }
+
+  async function copyPassword() {
+    if (!currentPassword) {
+      status.textContent = 'Primero genera una contraseña.';
+      return;
+    }
+    try {
+      await navigator.clipboard.writeText(currentPassword);
+      status.textContent = '¡Contraseña copiada!';
+    } catch {
+      const area = document.createElement('textarea');
+      area.value = currentPassword;
+      area.style.position = 'fixed';
+      area.style.opacity = '0';
+      document.body.appendChild(area);
+      area.select();
+      const copied = document.execCommand('copy');
+      area.remove();
+      status.textContent = copied ? '¡Contraseña copiada!' : 'No se pudo copiar. Selecciona y copia la contraseña manualmente.';
+    }
+  }
+
+  document.getElementById('generateBtn').addEventListener('click', generatePassword);
+  document.getElementById('refreshBtn').addEventListener('click', generatePassword);
+  document.getElementById('copyBtn').addEventListener('click', copyPassword);
+  generatePassword();
+})();
+</script>
+</body>
+</html>
