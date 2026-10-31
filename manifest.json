@@ -2,7 +2,7 @@
 {
   "id": "./",
   "name": "LC Creador de Passwords",
-  "short_name": "Creador de Passwords",
+  "short_name": "Pass Generador",
   "description": "Almacen de prompts para imágenes, videos y animaciones con inteligencia artificial.",
   "start_url": "./",
   "scope": "./",
